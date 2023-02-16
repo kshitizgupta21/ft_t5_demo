@@ -39,10 +39,9 @@ from FasterTransformer.examples.pytorch.t5.utils.ft_encoder import FTT5EncoderWe
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--ft_model_location', type=str, required=True)
-    parser.add_argument('--hf_model_location', type=str, required=True)
     parser.add_argument('--inference_data_type', type=str, choices=['fp32', 'fp16', 'bf16'], default='fp32')
     parser.add_argument("--max_seq_len", type=int, default=64)
-    parser.add_argument('--lib_path', type=str, default='./lib/libth_transformer.so',
+    parser.add_argument('--lib_path', type=str, default='./FasterTransformer/build/lib/libth_transformer.so',
                         help='path to the pyt_fastertransformer dynamic lib file.')
     parser.add_argument('--tensor_para_size', type=int, default=1,
                         help='tensor parallel size')
@@ -50,11 +49,11 @@ def main():
                         help='pipeline parallel size')
     parser.add_argument('-len_penalty', '--len_penalty', type=float, default=0.0, metavar='NUMBER',
                         help='Length penalty for generating tokens. Default is 0.0.')
-    parser.add_argument('-diversity_rate', '--beam_search_diversity_rate', type=float, default=0.0, metavar='NUMBER',
-                        help='deviersity rate of beam search. default is 0. When diversity rate = 0, it is equivalent to the naive beam search.')
-    parser.add_argument('-repeat_penalty', '--repetition_penalty', type=float, default=1.0, metavar='NUMBER',
+    parser.add_argument('--diversity_rate', type=float, default=0.0, metavar='NUMBER',
+                        help='diversity rate of beam search. default is 0. When diversity rate = 0, it is equivalent to the naive beam search.')
+    parser.add_argument('--repeat_penalty', type=float, default=1.0, metavar='NUMBER',
                         help='Repetition penalty for generating tokens. Default is 1.0.')
-    parser.add_argument('-temperature', '--temperature', type=float, default=1.0, metavar='NUMBER',
+    parser.add_argument('--temperature', type=float, default=1.0, metavar='NUMBER',
                         help='Temperature penalty for generating tokens. Default is 1.0.')
     parser.add_argument("--topk", type=int, default=1, help="top k for sampling")
     parser.add_argument("--topp", type=float, default=0.0, help="top p for sampling")
@@ -75,11 +74,12 @@ def main():
     tensor_para_size = args.tensor_para_size
     pipeline_para_size = args.pipeline_para_size
     ft_model_location = args.ft_model_location + f"/{tensor_para_size}-gpu/"
-    hf_model_location = args.hf_model_location
 
+    
     # Define Tokenizer
-    tokenizer = AutoTokenizer.from_pretrained(hf_model_location)
+    tokenizer = AutoTokenizer.from_pretrained("t5-base", model_max_lenth=128)
     tokenizer.pad_token = tokenizer.eos_token
+    tokenizer.model_max_length=512
 
     # Define Inputs
     INPUTS = [
@@ -136,7 +136,7 @@ def main():
     position_embedding_type = 0 if ckpt_config.get('structure', 'position_embedding_type') == 'relative' else 1
     activation_type = encoder_config.feed_forward_proj
 
-   
+
     tie_word_embeddings = ckpt_config.getboolean("decoder", "tie_word_embeddings")
     ft_encoder_weight = FTT5EncoderWeight(
         encoder_config,
@@ -226,8 +226,8 @@ def main():
         ft_outputs.append(list(ft_output_ids[i, 0, :][:ft_sequence_length[i , 0]]))
     ft_tokens = tokenizer.batch_decode(ft_outputs, skip_special_tokens=True)
     if rank == 0:
+        print("\n FT Output:")
         print(ft_tokens)
-   
+
 if __name__ == '__main__':
     main()
-

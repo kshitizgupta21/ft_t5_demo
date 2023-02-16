@@ -1,0 +1,14 @@
+2023-02-16 02:00:31,406 __main__ [INFO]
+=============== Argument ===============
+2023-02-16 02:00:31,406 __main__ [INFO] saved_dir: ft_t5-11b
+2023-02-16 02:00:31,406 __main__ [INFO] in_file: t5-11b
+2023-02-16 02:00:31,406 __main__ [INFO] inference_tensor_para_size: 4
+2023-02-16 02:00:31,406 __main__ [INFO] processes: 4
+2023-02-16 02:00:31,406 __main__ [INFO] weight_data_type: fp32
+2023-02-16 02:00:31,406 __main__ [INFO] encoder_only: False
+2023-02-16 02:00:31,406 __main__ [INFO] verbose: False
+2023-02-16 02:00:31,406 __main__ [INFO] ========================================
+Loading checkpoint shards: 100%|███████████████████████████████████████████████████████████████████████| 5/5 [00:17<00:00,  3.46s/it]
+2023-02-16 02:02:23,519 __main__ [WARNING] Not save encoder.embed_tokens.weight, using shared.weight directly.
+2023-02-16 02:03:13,454 __main__ [WARNING] Not save decoder.embed_tokens.weight, using shared.weight directly.
+2023-02-16 02:05:56,828 __main__ [INFO] Spend 0:05:25.421306 (h:m:s) to convert the model
